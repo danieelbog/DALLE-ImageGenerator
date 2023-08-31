@@ -1,16 +1,13 @@
 <template>
-    <div class="w-100">
-        <h2 class="d-flex justify-content-center text-white pt-5 pb-2">Search an Image</h2>
-        <div class="d-flex justify-content-center">
-            <div class="input-group w-50 d-flex">
-                <input v-model="searchText" type="text" class="form-control" placeholder="ex: Red sky with thunder">
-                <div class="input-group-append">
-                    <button @click="searchImages" class="btn btn-light" type="button">
-                        <span class="material-icons-outlined">
-                            search
-                        </span>
-                    </button>
-                </div>
+    <div class="d-flex justify-content-center">
+        <div class="input-group w-50">
+            <input v-model="searchText" type="text" class="form-control" placeholder="ex: Arasaka Weapons">
+            <div class="input-group-append">
+                <button @click="searchImages" class="btn btn-light" type="button">
+                    <span class="material-icons-outlined">
+                        search
+                    </span>
+                </button>
             </div>
         </div>
     </div>
@@ -19,6 +16,8 @@
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
 import { API_KEY } from "../assets/keys/key";
+import { api } from "@/api/index"
+import { DalleDto } from '../types/dalleDto';
 
 export default defineComponent({
     setup(props, ctx) {
@@ -26,22 +25,19 @@ export default defineComponent({
         async function searchImages() {
             try {
                 var url = "https://api.openai.com/v1/images/generations";
-                var options = {
-                    body: JSON.stringify({
-                        "prompt": searchText.value,
-                        "n": 4,
-                        "size": "1024x1024"
-                    }),
-                    headers: {
-                        "Authorization": `Bearer ${API_KEY}`,
-                        "Content-Type": "application/json"
-                    },
-                    method: "POST"
+                var body = JSON.stringify({
+                    "prompt": searchText.value,
+                    "n": 4,
+                    "size": "1024x1024"
+                })
+                var headers = {
+                    "Authorization": `Bearer ${API_KEY}`,
+                    "Content-Type": "application/json"
                 }
 
-                var response = await fetch(url, options);
-                var data = await response.json();
-                ctx.emit(data);
+                const response = await api.post<DalleDto>(url, body, { headers })
+                if (response.data)
+                    ctx.emit("imagesLoaded", response.data);
             } catch (error) {
                 console.log("error", error)
             }

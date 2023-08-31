@@ -1,8 +1,6 @@
 import axios from "axios";
 import MockAdapter from "axios-mock-adapter";
 
-import { initMockApis } from "@/src/mocks";
-
 //global axios api
 const api = createInstance("http://localhost:5173/");
 export { api };
@@ -22,9 +20,12 @@ function createInstance(baseURL: string) {
 	return instance;
 }
 
+import { initMockApis } from "@/src/mocks";
 if (enviromentIsDev()) initMockApis();
 
 function createMockAdapter() {
+	console.log("createMockAdapter");
+
 	var adapter = new MockAdapter(api, {
 		onNoMatch: "throwException",
 		delayResponse: 1500,
@@ -34,6 +35,6 @@ function createMockAdapter() {
 }
 
 function enviromentIsDev(): boolean {
-	//return process.env.NODE_ENV === "development";
-	return false;
+	console.log(process.env.NODE_ENV === "development");
+	return process.env.NODE_ENV === "development";
 }
